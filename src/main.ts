@@ -173,24 +173,27 @@ export default class PaperFlowPlugin extends Plugin {
 
       this.removeFileFromPaperSources(file.path);
       const paperKeys = [];
+      const processedUrls = [];
 
       for (const url of urls) {
         const paper = await this.resolvePaperFromUrl(url);
         if (!paper) continue;
         if (!paperKeys.includes(paper.key)) paperKeys.push(paper.key);
+        if (!processedUrls.includes(url)) processedUrls.push(url);
         this.addPaperSource(paper.key, file.path, url);
       }
 
       this.data.files[file.path] = {
-        urls,
+        urls: processedUrls,
         paperKeys,
         lastProcessed: nowIso()
       };
       await this.savePluginData();
 
       if (this.settings.insertGeneratedBlock && paperKeys.length > 0) {
+        const contentWithoutProcessedUrls = removeProcessedUrlLines(original, processedUrls);
         const next = replaceGeneratedBlock(
-          original,
+          contentWithoutProcessedUrls,
           PAPER_BLOCK_START,
           PAPER_BLOCK_END,
           this.renderPaperBlock(paperKeys)
@@ -942,6 +945,48 @@ function extractHttpUrls(content) {
   }
 
   return urls;
+}
+
+function removeProcessedUrlLines(content, urls) {
+  const cleanUrls = unique(urls).map((url) => String(url));
+  if (cleanUrls.length === 0) return content;
+
+  const lines = content.split("\n");
+  const nextLines = [];
+
+  for (const line of lines) {
+    let nextLine = line;
+
+    for (const url of cleanUrls) {
+      const standaloneRegex = new RegExp(
+        `^\\s*(?:[-*+]\\s*)?(?:<${escapeRegExp(url)}>|${escapeRegExp(url)})\\s*$`
+      );
+
+      if (standaloneRegex.test(nextLine)) {
+        nextLine = "";
+        break;
+      }
+
+      nextLine = removeUrlFromLine(nextLine, url);
+    }
+
+    if (nextLine !== "") nextLines.push(nextLine);
+  }
+
+  return collapseExcessBlankLines(nextLines.join("\n"));
+}
+
+function removeUrlFromLine(line, url) {
+  const escaped = escapeRegExp(url);
+  return line
+    .replace(new RegExp(`<${escaped}>`, "g"), "")
+    .replace(new RegExp(escaped, "g"), "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/[ \t]+$/g, "");
+}
+
+function collapseExcessBlankLines(content) {
+  return content.replace(/\n{3,}/g, "\n\n");
 }
 
 function blockRegex(start, end) {
