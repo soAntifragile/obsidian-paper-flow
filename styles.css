@@ -1,0 +1,7 @@
+.paper-flow-muted {
+  color: var(--text-muted);
+}
+
+.paper-flow-warning {
+  color: var(--text-warning);
+}

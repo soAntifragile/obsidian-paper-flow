@@ -1,0 +1,28 @@
+{
+  "name": "obsidian-paper-flow",
+  "version": "0.1.0",
+  "description": "Obsidian plugin for tracking paper URLs, PDFs, citation counts, and Mermaid literature maps.",
+  "main": "main.js",
+  "scripts": {
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "dev": "node esbuild.config.mjs",
+    "typecheck": "tsc -noEmit -skipLibCheck"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "paper",
+    "literature",
+    "citation",
+    "mermaid"
+  ],
+  "author": "Codex",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.20.2",
+    "obsidian": "^1.5.12",
+    "typescript": "^5.4.2"
+  }
+}

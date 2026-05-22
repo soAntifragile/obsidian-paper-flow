@@ -1,0 +1,9 @@
+{
+  "id": "paper-flow",
+  "name": "Paper Flow",
+  "version": "0.1.0",
+  "minAppVersion": "0.15.0",
+  "description": "Detect paper URLs in Markdown notes, download PDFs, maintain metadata and citation counts, and generate Mermaid literature maps.",
+  "author": "Codex",
+  "isDesktopOnly": true
+}
